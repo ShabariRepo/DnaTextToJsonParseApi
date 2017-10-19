@@ -5,11 +5,11 @@ Parse Text to JSON:
 1. text will be passed in with the URI parameters with the '?text=' param (/Controller/Api)
 2. The controller will then use the interface or method from ParseTextToJson model (ParseText() method)(/Dto)
 3. Operators will be implicitly converted to JSON objects using the DnaLog and Operator models
-    3a. There are 4 models and the main model being LogDnaDto (/Dto)
-    3b. Any chages made will be only to the ParseTextToJson class unless model needs to be expanded
+    - 3a. There are 4 models and the main model being LogDnaDto (/Dto)
+    - 3b. Any chages made will be only to the ParseTextToJson class unless model needs to be expanded
 4. DTO objects are used to not interfere with the original models under /models
 5. If ;and; not specified, then will default to OR
-    5a. <400;>500; will default to <400;or;>500;
+    - 5a. <400;>500; will default to <400;or;>500;
 6. Not supported yet :( :
     - Multiple String inputs within ( )
     - ! operator will be parsed as its own object
