@@ -16,7 +16,7 @@ Parse Text to JSON:
         - if not the int will always show even if not set in the JSON object
     - < > operators work but will need to test for <= or >= operators (if needed fix coming soon :)..)
     
-Example URI:   http://localhost:11974/api/dna?text="test data";or;>len(9);
+Example URI:   "http://localhost:11974/api/dna?text="test data";or;>len(9);"
 
 
 
