@@ -16,13 +16,15 @@ Parse Text to JSON:
     - Int conversion of the len(..) value
         - to fix this if it needs to be an int, may need to extract into a partial class or struct
         - if not the int will always show even if not set in the JSON object
-    - < > operators work but will need to test for <= or >= operators (if needed fix coming soon :)..)
+    - FIX: <= >= comparison operators fixed now will work :)
     
 Example URI:   "http://localhost:11974/api/dna?text="test data";or;>len(9);"
 
 
 
 Sample images:
+![image](https://user-images.githubusercontent.com/10635357/31775805-9c78799e-b4b7-11e7-9d03-fd3404ea862c.png)
+
 ![image](https://user-images.githubusercontent.com/10635357/31749227-af01a53e-b446-11e7-81bb-eaca911b0c53.png)
 
 ![image](https://user-images.githubusercontent.com/10635357/31749249-cb564000-b446-11e7-9c4d-2cd0e792637d.png)
