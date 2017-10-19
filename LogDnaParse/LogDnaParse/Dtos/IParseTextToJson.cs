@@ -1,7 +1,7 @@
 ﻿namespace LogDnaParse.Dtos
 {
     /// <summary>
-    /// Interface of the ParseTextToJson class
+    /// Interface of the ParseTextToJson class for ease of use
     /// </summary>
     public interface IParseTextToJson
     {

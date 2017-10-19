@@ -24,7 +24,7 @@ namespace LogDnaParse.Dtos
         public string Desc { get; set; }
 
         /// <summary>
-        /// Value of the number greater than or less than
+        /// Value of the number greater than or less than (when there is a < or > it will use this to display the value</or>
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Value { get; set; }

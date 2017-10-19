@@ -24,13 +24,15 @@ namespace LogDnaParse.Controllers.Api
 
         /// <summary>
         /// GET api/dna?text=error;or;info;
+        /// the text will then be split and parsed based on each section
         /// </summary>
-        /// <param name="text">Text from the URI main components separated by ;</param>
+        /// <param name="text">Text from the URI main components separated by ; </param>
         /// <returns>JSON result object modelled from the LogDnaDto class</returns>
         public IHttpActionResult Get([FromUri]string text)
         {
             var result = _parseTextToJson.ParseText(text);
 
+            // can use JSON serializer to add any extra details like date formatting etc
             return new JsonResult<object>(result, new JsonSerializerSettings(), Encoding.UTF8, this);
         }
 

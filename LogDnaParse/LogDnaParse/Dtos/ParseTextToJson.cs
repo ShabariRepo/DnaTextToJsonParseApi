@@ -55,7 +55,7 @@ namespace LogDnaParse.Dtos
         }
 
         /// <summary>
-        /// return the build object as mapped to dto
+        /// return the build object as mapped to dto of comparison Operator
         /// </summary>
         /// <param name="position">position to start from</param>
         /// <param name="comparison">comparison operator</param>
@@ -64,6 +64,8 @@ namespace LogDnaParse.Dtos
         /// <returns></returns>
         private ComparisonOperatorsDto ReturnBuiltObject(int position, string comparison, string section, string property)
         {
+            // instantiate a new object of type comparison operator to set within the cases
+            // basically there is a flag passed in that would describe which object property to fill for the JSON to show
             var compObj = new ComparisonOperatorsDto();
             switch (property.ToUpper())
             {
@@ -103,10 +105,12 @@ namespace LogDnaParse.Dtos
             // if and exists in string
             if (input.IndexOf("and") != -1)
             {
+                // split the total string based on ; creating small sections of code to parse
                 var arr = input.Split(';');
+
                 foreach (var section in arr)
                 {
-                    // if the string has >
+                    // if the string section has >
                     if (section.IndexOf(">") != -1)
                     {
                         // if the string has len function else just regularly convert to gt
@@ -123,7 +127,7 @@ namespace LogDnaParse.Dtos
                             currentPosition = 0;
                         }
                     }
-                    // if string has <
+                    // if string section has <
                     else if (section.IndexOf("<") != -1)
                     {
                         // if the string has len function else just regularly convert to lt

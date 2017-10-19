@@ -13,6 +13,7 @@ namespace LogDnaParse.Dtos
     {
         /// <summary>
         /// Primary object inside which most of the conditions lay
+        /// this property also will have all the sub objects (nested)
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public MainOperatorsDto Primary { get; set; }

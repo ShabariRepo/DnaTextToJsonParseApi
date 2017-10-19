@@ -6,6 +6,9 @@ using System.Web;
 
 namespace LogDnaParse.Dtos
 {
+    /// <summary>
+    /// this class is similar to the Comparison Operators class but is exclusively for ! key
+    /// </summary>
     public class TruthyFalsyOperatorsDto
     {
         /// <summary>
