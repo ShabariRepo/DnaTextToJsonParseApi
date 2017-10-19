@@ -62,7 +62,7 @@ namespace LogDnaParse.Dtos
         /// <param name="section">section in the split based on ;</param>
         /// <param name="property">which property does it represent in the comparisonOperators obj</param>
         /// <returns></returns>
-        private ComparisonOperatorsDto ReturnBuiltObject(int position, string comparison, string section, string property)
+        private ComparisonOperatorsDto ReturnBuiltObject(int position, string comparison, string section, string property, int sectionSub)
         {
             // instantiate a new object of type comparison operator to set within the cases
             // basically there is a flag passed in that would describe which object property to fill for the JSON to show
@@ -73,12 +73,16 @@ namespace LogDnaParse.Dtos
                     compObj.Desc = section.Substring(position, section.Length);
                     break;
                 case "VALUE":
+                    // if the incoming section sub is 1 then replace the = with empty space and trim before adding
+                    section = sectionSub == 1 ? section.Replace('=', ' ') : section;
                     compObj.Comparison = comparison;
-                    compObj.Value = section.Substring(position, section.Length - 1);
+                    compObj.Value = section.Substring(position, section.Length - 1).Trim(' ');
                     break;
                 case "LENGTH":
+                    // if the incoming section sub check is 1 then read from position 6 to avoid brackets of len
+                    var subStringIndex = sectionSub == 1 ? 6 : 4;
                     compObj.Comparison = comparison;
-                    compObj.Length = TrimBrackets(section.Substring(4));
+                    compObj.Length = TrimBrackets(section.Substring(subStringIndex));
                     break;
                 case "QUOTED":
                     compObj.Comparison = comparison;
@@ -110,52 +114,92 @@ namespace LogDnaParse.Dtos
 
                 foreach (var section in arr)
                 {
-                    // if the string section has >
+                    // if the string section has >=
                     if (section.IndexOf(">") != -1)
                     {
-                        // if the string has len function else just regularly convert to gt
-                        if (section.IndexOf("len") != -1)
+                        // if the string section has >=
+                        if (section.IndexOf(">=") != -1)
                         {
-                            currentPosition = section.IndexOf("len") + 3;
-                            listy.Add(ReturnBuiltObject(currentPosition, "$gt", section, "length"));
-                            currentPosition = 0;
+                            // if the string has len function else just regularly convert to gt
+                            if (section.IndexOf("len") != -1)
+                            {
+                                currentPosition = section.IndexOf("len") + 3;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$gt$eq", section, "length", 1));
+                                currentPosition = 0;
+                            }
+                            else
+                            {
+                                currentPosition = section.IndexOf("=");
+                                listy.Add(ReturnBuiltObject(currentPosition, "$gt$eq", section, "value", 1));
+                                currentPosition = 0;
+                            }
                         }
                         else
                         {
-                            currentPosition = section.IndexOf(">") + 1;
-                            listy.Add(ReturnBuiltObject(currentPosition, "$gt", section, "value"));
-                            currentPosition = 0;
-                        }
-                    }
+                            // if the string has len function else just regularly convert to gt
+                            if (section.IndexOf("len") != -1)
+                            {
+                                currentPosition = section.IndexOf("len") + 3;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$gt", section, "length", 0));
+                                currentPosition = 0;
+                            }
+                            else
+                            {
+                                currentPosition = section.IndexOf(">") + 1;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$gt", section, "value", 0));
+                                currentPosition = 0;
+                            }
+                        }                        
+                    }                    
                     // if string section has <
                     else if (section.IndexOf("<") != -1)
                     {
-                        // if the string has len function else just regularly convert to lt
-                        if (section.IndexOf("len") != -1)
+                    // if string section has <=
+                        if (section.IndexOf("<=") != -1)
                         {
-                            currentPosition = section.IndexOf("len") + 3;
-                            listy.Add(ReturnBuiltObject(currentPosition, "$lt", section, "length"));
-                            currentPosition = 0;
+                            // if the string has len function else just regularly convert to lt
+                            if (section.IndexOf("len") != -1)
+                            {
+                                currentPosition = section.IndexOf("len") + 3;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$lt$eq", section, "length", 1));
+                                currentPosition = 0;
+                            }
+                            else
+                            {
+                                currentPosition = section.IndexOf("=");
+                                listy.Add(ReturnBuiltObject(currentPosition, "$lt$eq", section, "value", 1));
+                                currentPosition = 0;
+                            }
                         }
                         else
                         {
-                            currentPosition = section.IndexOf("<") + 1;
-                            listy.Add(ReturnBuiltObject(currentPosition, "$lt", section, "value"));
-                            currentPosition = 0;
-                        }
+                            // if the string has len function else just regularly convert to lt
+                            if (section.IndexOf("len") != -1)
+                            {
+                                currentPosition = section.IndexOf("len") + 3;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$lt", section, "length", 0));
+                                currentPosition = 0;
+                            }
+                            else
+                            {
+                                currentPosition = section.IndexOf("<") + 1;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$lt", section, "value", 0));
+                                currentPosition = 0;
+                            }
+                        }                        
                     }
                     // if the string has quotes then t reat the inside of the quotes as equals
                     else if (section.IndexOf('"') != -1)
                     {
                         currentPosition = section.IndexOf('"') + 1;
-                        listy.Add(ReturnBuiltObject(currentPosition, "$eq", section, "quoted"));
+                        listy.Add(ReturnBuiltObject(currentPosition, "$eq", section, "quoted", 0));
                         currentPosition = 0;
                     }
                     // if the string length is greater than 3 then its just words and treat them as desc
                     else if (section.Length > 3)
                     {
                         currentPosition = 0;
-                        listy.Add(ReturnBuiltObject(currentPosition, null, section, "desc"));
+                        listy.Add(ReturnBuiltObject(currentPosition, null, section, "desc", 0));
                     }
                     // add to the object in array form
                     g6.And = listy.ToArray();
@@ -188,45 +232,84 @@ namespace LogDnaParse.Dtos
                 foreach (var section in arr)
                 {
                     if (section.IndexOf(">") != -1)
-                    {
-                        if (section.IndexOf("len") != -1)
+                    {// if the string section has >=
+                        if (section.IndexOf(">=") != -1)
                         {
-                            currentPosition = section.IndexOf("len") + 3;
-                            listy.Add(ReturnBuiltObject(currentPosition, "$gt", section, "length"));
-                            currentPosition = 0;
+                            // if the string has len function else just regularly convert to gt
+                            if (section.IndexOf("len") != -1)
+                            {
+                                currentPosition = section.IndexOf("len") + 3;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$gt$eq", section, "length", 1));
+                                currentPosition = 0;
+                            }
+                            else
+                            {
+                                currentPosition = section.IndexOf("=");
+                                listy.Add(ReturnBuiltObject(currentPosition, "$gt$eq", section, "value", 1));
+                                currentPosition = 0;
+                            }
                         }
                         else
                         {
-                            currentPosition = section.IndexOf(">") + 1;
-                            listy.Add(ReturnBuiltObject(currentPosition, "$gt", section, "value"));
-                            currentPosition = 0;
+                            if (section.IndexOf("len") != -1)
+                            {
+                                currentPosition = section.IndexOf("len") + 3;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$gt", section, "length", 0));
+                                currentPosition = 0;
+                            }
+                            else
+                            {
+                                currentPosition = section.IndexOf(">") + 1;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$gt", section, "value", 0));
+                                currentPosition = 0;
+                            }
                         }
-                    }
+                    }                    
                     else if (section.IndexOf("<") != -1)
                     {
-                        if (section.IndexOf("len") != -1)
+                        // if string section has <=
+                        if (section.IndexOf("<=") != -1)
                         {
-                            currentPosition = section.IndexOf("len") + 3;
-                            listy.Add(ReturnBuiltObject(currentPosition, "$lt", section, "length"));
-                            currentPosition = 0;
+                            // if the string has len function else just regularly convert to lt
+                            if (section.IndexOf("len") != -1)
+                            {
+                                currentPosition = section.IndexOf("len") + 3;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$lt$eq", section, "length", 1));
+                                currentPosition = 0;
+                            }
+                            else
+                            {
+                                currentPosition = section.IndexOf("=");
+                                listy.Add(ReturnBuiltObject(currentPosition, "$lt$eq", section, "value", 1));
+                                currentPosition = 0;
+                            }
                         }
                         else
                         {
-                            currentPosition = section.IndexOf("<") + 1;
-                            listy.Add(ReturnBuiltObject(currentPosition, "$lt", section, "value"));
-                            currentPosition = 0;
+                            if (section.IndexOf("len") != -1)
+                            {
+                                currentPosition = section.IndexOf("len") + 3;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$lt", section, "length", 0));
+                                currentPosition = 0;
+                            }
+                            else
+                            {
+                                currentPosition = section.IndexOf("<") + 1;
+                                listy.Add(ReturnBuiltObject(currentPosition, "$lt", section, "value", 0));
+                                currentPosition = 0;
+                            }
                         }
                     }
                     else if (section.IndexOf('"') != -1)
                     {
                         currentPosition = section.IndexOf('"') + 1;
-                        listy.Add(ReturnBuiltObject(currentPosition, "$eq", section, "quoted"));
+                        listy.Add(ReturnBuiltObject(currentPosition, "$eq", section, "quoted", 0));
                         currentPosition = 0;
                     }
                     else if (section.Length > 2)
                     {
                         currentPosition = 0;
-                        listy.Add(ReturnBuiltObject(currentPosition, null, section, "desc"));
+                        listy.Add(ReturnBuiltObject(currentPosition, null, section, "desc", 0));
                     }
 
                     g6.Or = listy.ToArray();
