@@ -8,7 +8,9 @@ Parse Text to JSON:
     3a. There are 4 models and the main model being LogDnaDto (/Dto)
     3b. Any chages made will be only to the ParseTextToJson class unless model needs to be expanded
 4. DTO objects are used to not interfere with the original models under /models
-5. Not supported yet :( :
+5. If ;and; not specified, then will default to OR
+    5a. <400;>500; will default to <400;or;>500;
+6. Not supported yet :( :
     - Multiple String inputs within ( )
     - ! operator will be parsed as its own object
     - Int conversion of the len(..) value
